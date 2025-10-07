@@ -1,0 +1,175 @@
+{% extends 'core/base.html' %}
+
+{% block title %}
+    {% if object %}Editar Agendamento{% else %}Novo Agendamento{% endif %} - AgendiCare
+{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <h1>
+        <i class="bi bi-calendar-plus"></i> 
+        {% if object %}Editar Agendamento{% else %}Novo Agendamento{% endif %}
+    </h1>
+    <p class="lead">
+        {% if object %}Atualize as informações do agendamento{% else %}Preencha os dados para criar um novo agendamento{% endif %}
+    </p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>
+                    <i class="bi bi-form"></i> 
+                    {% if object %}Editar Agendamento{% else %}Dados do Agendamento{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.paciente.id_for_label }}" class="form-label">
+                                <i class="bi bi-person"></i> Paciente *
+                            </label>
+                            {{ form.paciente }}
+                            {% if form.paciente.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.paciente.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <a href="{% url 'paciente_create' %}" target="_blank" class="text-decoration-none">
+                                    <i class="bi bi-plus-circle"></i> Cadastrar novo paciente
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.medico.id_for_label }}" class="form-label">
+                                <i class="bi bi-person-badge"></i> Médico *
+                            </label>
+                            {{ form.medico }}
+                            {% if form.medico.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.medico.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <a href="{% url 'medico_create' %}" target="_blank" class="text-decoration-none">
+                                    <i class="bi bi-plus-circle"></i> Cadastrar novo médico
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.data_hora.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar-event"></i> Data e Hora *
+                            </label>
+                            {{ form.data_hora }}
+                            {% if form.data_hora.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.data_hora.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Formato: DD/MM/AAAA HH:MM</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">
+                                <i class="bi bi-flag"></i> Status *
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.status.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.observacoes.id_for_label }}" class="form-label">
+                            <i class="bi bi-chat-text"></i> Observações
+                        </label>
+                        {{ form.observacoes }}
+                        {% if form.observacoes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.observacoes.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Informações adicionais sobre o agendamento (opcional)</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'agendamento_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> 
+                            {% if object %}Atualizar{% else %}Criar{% endif %} Agendamento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações de Ajuda -->
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6><i class="bi bi-info-circle"></i> Dicas</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Verifique se o médico está disponível no horário selecionado</li>
+                    <li>Confirme os dados do paciente antes de salvar</li>
+                    <li>Use as observações para informações importantes sobre a consulta</li>
+                    <li>O status pode ser alterado posteriormente conforme necessário</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar classes do Bootstrap aos campos do formulário
+    const formControls = document.querySelectorAll('select, input[type="text"], input[type="email"], input[type="datetime-local"], textarea');
+    formControls.forEach(function(control) {
+        control.classList.add('form-control');
+    });
+    
+    // Adicionar classe específica para selects
+    const selects = document.querySelectorAll('select');
+    selects.forEach(function(select) {
+        select.classList.remove('form-control');
+        select.classList.add('form-select');
+    });
+    
+    // Validação de conflito de horário (simulação)
+    const medicoSelect = document.querySelector('#id_medico');
+    const dataHoraInput = document.querySelector('#id_data_hora');
+    
+    if (medicoSelect && dataHoraInput) {
+        function verificarConflito() {
+            if (medicoSelect.value && dataHoraInput.value) {
+                // Aqui você poderia fazer uma requisição AJAX para verificar conflitos
+                console.log('Verificando conflitos para médico:', medicoSelect.value, 'em:', dataHoraInput.value);
+            }
+        }
+        
+        medicoSelect.addEventListener('change', verificarConflito);
+        dataHoraInput.addEventListener('change', verificarConflito);
+    }
+});
+</script>
+{% endblock %}

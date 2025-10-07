@@ -1,0 +1,133 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Pacientes - AgendiCare{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <h1><i class="bi bi-people"></i> Pacientes</h1>
+    <p class="lead">Gerencie todos os pacientes da clínica</p>
+</div>
+
+<!-- Busca -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-10">
+                <input type="text" class="form-control" name="search" 
+                       value="{{ request.GET.search }}" 
+                       placeholder="Buscar por nome, CPF ou email...">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Ações -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Lista de Pacientes</h4>
+    <a href="{% url 'paciente_create' %}" class="btn btn-success">
+        <i class="bi bi-person-plus"></i> Novo Paciente
+    </a>
+</div>
+
+<!-- Lista de Pacientes -->
+<div class="card">
+    <div class="card-body">
+        {% if pacientes %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>Email</th>
+                            <th>Data Nascimento</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paciente in pacientes %}
+                        <tr>
+                            <td>
+                                <i class="bi bi-person"></i> <strong>{{ paciente.nome }}</strong>
+                            </td>
+                            <td>{{ paciente.cpf }}</td>
+                            <td>
+                                <a href="tel:{{ paciente.telefone }}" class="text-decoration-none">
+                                    {{ paciente.telefone }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="mailto:{{ paciente.email }}" class="text-decoration-none">
+                                    {{ paciente.email }}
+                                </a>
+                            </td>
+                            <td>{{ paciente.data_nascimento|date:"d/m/Y" }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'paciente_detail' paciente.pk %}" 
+                                       class="btn btn-outline-primary" title="Ver detalhes">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'paciente_update' paciente.pk %}" 
+                                       class="btn btn-outline-warning" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'paciente_delete' paciente.pk %}" 
+                                       class="btn btn-outline-danger" title="Excluir">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            {% if is_paginated %}
+                <nav aria-label="Navegação de páginas">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Primeira</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Anterior</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Próxima</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Última</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-person-x display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">Nenhum paciente encontrado</h4>
+                <p class="text-muted">Tente ajustar a busca ou cadastrar um novo paciente.</p>
+                <a href="{% url 'paciente_create' %}" class="btn btn-success">
+                    <i class="bi bi-person-plus"></i> Novo Paciente
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

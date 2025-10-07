@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Excluir Médico - AgendiCare{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <h1 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Excluir Médico</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5>Confirmação de Exclusão</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+                </div>
+                
+                <p>Tem certeza que deseja excluir o médico:</p>
+                <div class="alert alert-light">
+                    <strong>{{ object.nome }}</strong><br>
+                    CRM: {{ object.crm }}<br>
+                    Especialidade: {{ object.get_especialidade_display }}<br>
+                    Email: {{ object.email }}
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'medico_detail' object.pk %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

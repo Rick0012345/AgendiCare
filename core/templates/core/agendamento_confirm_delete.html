@@ -1,0 +1,115 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Excluir Agendamento - AgendiCare{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <h1 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Excluir Agendamento</h1>
+    <p class="lead">Confirme a exclusão do agendamento</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5><i class="bi bi-trash"></i> Confirmação de Exclusão</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Atenção!</strong> Esta ação não pode ser desfeita. O agendamento será permanentemente removido do sistema.
+                </div>
+
+                <!-- Detalhes do Agendamento -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6>Detalhes do Agendamento a ser Excluído</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Paciente:</strong><br>{{ agendamento.paciente.nome }}</p>
+                                <p><strong>Médico:</strong><br>{{ agendamento.medico.nome }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Data e Hora:</strong><br>{{ agendamento.data_hora|date:"d/m/Y H:i" }}</p>
+                                <p><strong>Status:</strong><br>
+                                    <span class="badge status-{{ agendamento.status }}">
+                                        {{ agendamento.get_status_display }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {% if agendamento.observacoes %}
+                        <div class="mt-3">
+                            <p><strong>Observações:</strong></p>
+                            <div class="alert alert-light">
+                                {{ agendamento.observacoes|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'agendamento_detail' agendamento.pk %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Confirmar Exclusão
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações sobre as Consequências -->
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6><i class="bi bi-info-circle"></i> O que acontece quando você exclui este agendamento?</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>O agendamento será removido permanentemente do sistema</li>
+                    <li>O horário ficará disponível para novos agendamentos</li>
+                    <li>Esta ação não afeta os dados do paciente ou médico</li>
+                    <li>Não será possível recuperar as informações após a exclusão</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar confirmação extra no botão de exclusão
+    const deleteForm = document.querySelector('form[method="post"]');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            const confirmed = confirm(
+                'ÚLTIMA CONFIRMAÇÃO: Tem absoluta certeza que deseja excluir este agendamento?\n\n' +
+                'Esta ação é IRREVERSÍVEL!'
+            );
+            if (!confirmed) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    // Focar no botão cancelar por segurança
+    const cancelBtn = document.querySelector('a[href*="agendamento_detail"]');
+    if (cancelBtn) {
+        cancelBtn.focus();
+    }
+});
+</script>
+{% endblock %}

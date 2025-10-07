@@ -1,0 +1,156 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard - AgendiCare{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+    <p class="lead">Visão geral do sistema de agendamentos</p>
+</div>
+
+<!-- Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="bi bi-people display-4 mb-3"></i>
+                <h3>{{ total_pacientes }}</h3>
+                <p class="mb-0">Pacientes</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="bi bi-person-badge display-4 mb-3"></i>
+                <h3>{{ total_medicos }}</h3>
+                <p class="mb-0">Médicos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-check display-4 mb-3"></i>
+                <h3>{{ total_agendamentos }}</h3>
+                <p class="mb-0">Agendamentos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-day display-4 mb-3"></i>
+                <h3>{{ agendamentos_hoje.count }}</h3>
+                <p class="mb-0">Hoje</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-lightning"></i> Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'agendamento_create' %}" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-circle"></i> Novo Agendamento
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'paciente_create' %}" class="btn btn-success w-100">
+                            <i class="bi bi-person-plus"></i> Novo Paciente
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'medico_create' %}" class="btn btn-info w-100">
+                            <i class="bi bi-person-badge"></i> Novo Médico
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'agendamento_list' %}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-list"></i> Ver Todos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Agendamentos de Hoje -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-calendar-day"></i> Agendamentos de Hoje</h5>
+                <span class="badge bg-primary">{{ agendamentos_hoje.count }} agendamento{{ agendamentos_hoje.count|pluralize }}</span>
+            </div>
+            <div class="card-body">
+                {% if agendamentos_hoje %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Horário</th>
+                                    <th>Paciente</th>
+                                    <th>Médico</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for agendamento in agendamentos_hoje %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ agendamento.data_hora|date:"H:i" }}</strong>
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person"></i> {{ agendamento.paciente.nome }}
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person-badge"></i> {{ agendamento.medico.nome }}
+                                        <br><small class="text-muted">{{ agendamento.medico.get_especialidade_display }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge status-{{ agendamento.status }}">
+                                            {{ agendamento.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'agendamento_detail' agendamento.pk %}" 
+                                               class="btn btn-outline-primary" title="Ver detalhes">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{% url 'agendamento_update' agendamento.pk %}" 
+                                               class="btn btn-outline-warning" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x display-1 text-muted"></i>
+                        <h4 class="text-muted mt-3">Nenhum agendamento para hoje</h4>
+                        <p class="text-muted">Que tal criar um novo agendamento?</p>
+                        <a href="{% url 'agendamento_create' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Novo Agendamento
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

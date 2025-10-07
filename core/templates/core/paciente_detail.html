@@ -1,0 +1,107 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ paciente.nome }} - AgendiCare{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <h1><i class="bi bi-person"></i> {{ paciente.nome }}</h1>
+    <p class="lead">Informações do paciente</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="bi bi-info-circle"></i> Dados Pessoais</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nome:</strong> {{ paciente.nome }}</p>
+                        <p><strong>CPF:</strong> {{ paciente.cpf }}</p>
+                        <p><strong>Data de Nascimento:</strong> {{ paciente.data_nascimento|date:"d/m/Y" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Telefone:</strong> 
+                            <a href="tel:{{ paciente.telefone }}">{{ paciente.telefone }}</a>
+                        </p>
+                        <p><strong>Email:</strong> 
+                            <a href="mailto:{{ paciente.email }}">{{ paciente.email }}</a>
+                        </p>
+                        <p><strong>Endereço:</strong> {{ paciente.endereco|default:"Não informado" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico de Agendamentos -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar-check"></i> Histórico de Agendamentos</h5>
+            </div>
+            <div class="card-body">
+                {% if agendamentos %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Médico</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for agendamento in agendamentos %}
+                                <tr>
+                                    <td>{{ agendamento.data_hora|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ agendamento.medico.nome }}</td>
+                                    <td>
+                                        <span class="badge status-{{ agendamento.status }}">
+                                            {{ agendamento.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'agendamento_detail' agendamento.pk %}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Nenhum agendamento encontrado.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-lightning"></i> Ações</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'paciente_update' paciente.pk %}" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <a href="{% url 'paciente_delete' paciente.pk %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Excluir
+                    </a>
+                    <hr>
+                    <a href="{% url 'agendamento_create' %}?paciente={{ paciente.pk }}" class="btn btn-success">
+                        <i class="bi bi-calendar-plus"></i> Novo Agendamento
+                    </a>
+                    <a href="{% url 'paciente_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
